@@ -19,6 +19,7 @@
 #include <linux/gpio.h>
 #include <linux/delay.h>
 #include <linux/pwm_backlight.h>
+#include <linux/leds.h>		/*add by Nick.*/
 
 #include <asm/mach/arch.h>
 #include <asm/mach/map.h>
@@ -147,6 +148,42 @@ struct platform_device tiny210_dm9000 = {
 	},
 };
 
+/*add by Nick.*/
+static struct gpio_led tiny210_leds[] = {
+	[0] = {
+		.name = "LED1",
+		.gpio = S5PV210_GPJ2(0),
+	},
+
+	[1] = {
+		.name = "LED2",
+		.gpio = S5PV210_GPJ2(1),
+	},
+
+	[2] = {
+		.name = "LED3",
+		.gpio = S5PV210_GPJ2(2),
+	},
+
+	[3] = {
+		.name = "LED4",
+		.gpio = S5PV210_GPJ2(3),
+	},
+};
+
+static struct gpio_led_platform_data tiny210_gpio_led_pdata = {
+	.num_leds	= ARRAY_SIZE(tiny210_leds),
+	.leds 		= tiny210_leds,
+};
+
+static struct platform_device tiny210_device_led = {
+	.name	= "leds-gpio",
+	.id		= -1,
+	.dev	= {
+		.platform_data = &tiny210_gpio_led_pdata,
+	}
+};
+
 static void tiny210_lte480wv_set_power(struct plat_lcd_data *pd,
 					unsigned int power)
 {
@@ -272,6 +309,7 @@ static struct platform_device *tiny210_devices[] __initdata = {
 	&tiny210_lcd_lte480wv,
 	&s3c_device_timer[3],
 	&tiny210_backlight_device,
+	&tiny210_device_led,	/*add by Nick.*/
 };
 
 static void __init tiny210_dm9000_init(void)
