@@ -18,6 +18,7 @@ obj-$(CONFIG_MTD_NAND_AU1550)		+= au1550nd.o
 obj-$(CONFIG_MTD_NAND_BF5XX)		+= bf5xx_nand.o
 obj-$(CONFIG_MTD_NAND_PPCHAMELEONEVB)	+= ppchameleonevb.o
 obj-$(CONFIG_MTD_NAND_S3C2410)		+= s3c2410.o
+obj-$(CONFIG_MTD_NAND_S3C)		+= s3c_nand.o		#add by Nick
 obj-$(CONFIG_MTD_NAND_DAVINCI)		+= davinci_nand.o
 obj-$(CONFIG_MTD_NAND_DISKONCHIP)	+= diskonchip.o
 obj-$(CONFIG_MTD_NAND_FSMC)		+= fsmc_nand.o
@@ -51,3 +52,14 @@ obj-$(CONFIG_MTD_NAND_RICOH)		+= r852.o
 obj-$(CONFIG_MTD_NAND_JZ4740)		+= jz4740_nand.o
 
 nand-objs := nand_base.o nand_bbt.o
+
+#add by Nick.
+ifneq ($(CONFIG_MACH_MINI210)_$(CONFIG_MACH_TINY210),_)
+S5P_NAND_MLC_SRC = $(shell ls drivers/mtd/nand/s5p_nand_mlc.c 2>/dev/null)
+ifeq ($(S5P_NAND_MLC_SRC),)
+obj-y			+= s5p_nand_mlc.fo
+else
+obj-y			+= s5p_nand_mlc.o
+endif
+endif
+

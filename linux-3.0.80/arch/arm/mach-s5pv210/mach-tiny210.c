@@ -189,6 +189,24 @@ static struct platform_device tiny210_device_led = {
 	}
 };
 
+/*add by Nick.*/
+/* NAND Controller */
+static struct resource s3c_nand_resource[] = {
+	[0] = {
+		.start	= S5PV210_PA_NAND,
+		.end	= S5PV210_PA_NAND + S5PV210_SZ_NAND - 1,
+		.flags	= IORESOURCE_MEM,
+	}
+};
+
+struct platform_device s3c_device_nand = {
+	.name		= "s5pv210-nand",
+	.id			= -1,
+	.num_resources	= ARRAY_SIZE(s3c_nand_resource),
+	.resource	= s3c_nand_resource,
+};
+
+
 static void tiny210_lte480wv_set_power(struct plat_lcd_data *pd,
 					unsigned int power)
 {
@@ -295,6 +313,7 @@ static struct platform_device *tiny210_devices[] __initdata = {
 	&s3c_device_adc,
 	&s3c_device_cfcon,
 	&s3c_device_fb,
+	&s3c_device_nand,	/*add by Nick.*/
 	&s3c_device_hsmmc0,
 	&s3c_device_hsmmc1,
 	&s3c_device_hsmmc2,

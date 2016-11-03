@@ -16,12 +16,20 @@
 #include <plat/map-base.h>
 #include <plat/map-s5p.h>
 
+/*add by Nick.*/
+#if defined(CONFIG_MACH_SMDKV210) || defined(CONFIG_MACH_MINI210) || defined(CONFIG_MACH_TINY210)
 #define S5PV210_PA_SDRAM		0x20000000
+#else
+#define S5PV210_PA_SDRAM		0x30000000
+#endif
 
 #define S5PV210_PA_SROM_BANK5		0xA8000000
 
 #define S5PC110_PA_ONENAND		0xB0000000
 #define S5PC110_PA_ONENAND_DMA		0xB0600000
+
+#define S5PV210_PA_NAND			(0xB0E00000)
+#define S5PV210_SZ_NAND			SZ_1M
 
 #define S5PV210_PA_CHIPID		0xE0000000
 
