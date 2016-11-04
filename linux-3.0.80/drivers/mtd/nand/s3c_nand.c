@@ -41,7 +41,7 @@ struct mtd_partition s3c_partition_info[] = {
 	{
 		.name		= "bootloader",
 		.offset		= (0*SZ_1K),          /* for bootloader */
-		.size		= (256*SZ_1K),
+		.size		= (1*SZ_1M),
 		.mask_flags	= MTD_CAP_NANDFLASH,
 	},
 	{
@@ -52,7 +52,7 @@ struct mtd_partition s3c_partition_info[] = {
 	{
 		.name		= "kernel",
 		.offset		= MTDPART_OFS_APPEND,
-		.size		= (3*SZ_1M),
+		.size		= (5*SZ_1M),
 	},
 	{
 		.name		= "rootfs",
