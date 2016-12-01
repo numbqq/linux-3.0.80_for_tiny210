@@ -616,5 +616,10 @@ config MSM_SMD_PKT
 	  Enables userspace clients to read and write to some packet SMD
 	  ports via device interface for MSM chipset.
 
+config TINY210_KEYS
+	tristate "Tiny210 keys driver."
+	help
+	  Tiny210 keys driver.
+
 endmenu
 
