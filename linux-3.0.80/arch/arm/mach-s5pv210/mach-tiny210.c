@@ -46,6 +46,7 @@
 #include <plat/pm.h>
 #include <plat/fb.h>
 #include <plat/s5p-time.h>
+#include <plat/ehci.h>  /* add by Nick. */
 
 /* Following are default values for UCON, ULCON and UFCON UART registers */
 #define TINY210_UCON_DEFAULT	(S3C2410_UCON_TXILEVEL |	\
@@ -334,6 +335,7 @@ static struct platform_device *tiny210_devices[] __initdata = {
 	&s3c_device_timer[3],
 	&tiny210_backlight_device,
 	&tiny210_device_led,	/*add by Nick.*/
+	&s5p_device_ehci,		/* add by Nick. */
 };
 
 static void __init tiny210_dm9000_init(void)
@@ -380,6 +382,17 @@ static void __init tiny210_map_io(void)
 	s5p_set_timer_source(S5P_PWM2, S5P_PWM4);
 }
 
+/* add by Nick. */
+/* USB EHCI */
+static struct s5p_ehci_platdata tiny210_ehci_pdata;
+static void __init tiny210_ehci_init(void)                
+{
+	    struct s5p_ehci_platdata *pdata = &tiny210_ehci_pdata;
+
+		    s5p_ehci_set_platdata(pdata);
+}
+
+
 static void __init tiny210_machine_init(void)
 {
 	s3c_pm_init();
@@ -402,6 +415,9 @@ static void __init tiny210_machine_init(void)
 	s3c_ide_set_platdata(&tiny210_ide_pdata);
 
 	s3c_fb_set_platdata(&tiny210_lcd0_pdata);
+
+	/* add by Nick. */
+	tiny210_ehci_init();
 
 	platform_add_devices(tiny210_devices, ARRAY_SIZE(tiny210_devices));
 }

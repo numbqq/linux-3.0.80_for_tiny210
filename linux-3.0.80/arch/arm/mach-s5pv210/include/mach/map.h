@@ -140,4 +140,21 @@
 
 #define S5P_SZ_UART			SZ_256
 
+/* ad by Nick. */
+/* usb */
+#define S5PV210_PA_USB_EHCI     (0xEC200000)
+#define S5P_PA_USB_EHCI         S5PV210_PA_USB_EHCI
+#define S5P_SZ_USB_EHCI         SZ_1M
+
+#define S5PV210_PA_USB_OHCI     (0xEC300000)
+#define S5P_PA_USB_OHCI         S5PV210_PA_USB_OHCI
+#define S5P_SZ_USB_OHCI         SZ_1M
+
+#define S5PV210_PA_OTG          (0xEC000000)
+#define S5PV210_SZ_OTG          SZ_1M
+
+#define S5PV210_PA_OTGSFR       (0xEC100000)
+#define S5PV210_SZ_OTGSFR       SZ_1M
+
+
 #endif /* __ASM_ARCH_MAP_H */

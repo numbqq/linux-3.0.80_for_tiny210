@@ -18,14 +18,14 @@
 
 /* USB EHCI Host Controller registration */
 static struct resource s5p_ehci_resource[] = {
-	[0] = {
-		.start	= S5P_PA_EHCI,
-		.end	= S5P_PA_EHCI + SZ_256 - 1,
+	[0] = {/* modify by Nick. */
+		.start	= S5P_PA_USB_EHCI,
+		.end	= S5P_PA_USB_EHCI + S5P_SZ_USB_EHCI - 1,
 		.flags	= IORESOURCE_MEM,
 	},
 	[1] = {
-		.start	= IRQ_USB_HOST,
-		.end	= IRQ_USB_HOST,
+		.start	= IRQ_UHOST,
+		.end	= IRQ_UHOST,
 		.flags	= IORESOURCE_IRQ,
 	}
 };

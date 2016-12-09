@@ -14,7 +14,7 @@
 
 #include <linux/clk.h>
 #include <linux/platform_device.h>
-#include <mach/regs-pmu.h>
+//#include <mach/regs-pmu.h>  /* modify by Nick. */
 #include <plat/cpu.h>
 #include <plat/ehci.h>
 #include <plat/usb-phy.h>
