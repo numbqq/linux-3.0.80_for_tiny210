@@ -18,6 +18,7 @@
 #include <plat/cpu.h>
 #include <plat/ehci.h>
 #include <plat/usb-phy.h>
+#include <plat/mphy.h>
 
 struct s5p_ehci_hcd {
 	struct device *dev;
@@ -55,6 +56,41 @@ static const struct hc_driver s5p_ehci_hc_driver = {
 
 	.clear_tt_buffer_complete	= ehci_clear_tt_buffer_complete,
 };
+
+//add by Nick
+//友善之臂提供的linux3.0.8的源码中这个函数名为s5p_phy_init_ext，不开源，在drivers/mtd/nand/s5p_nand_mlc.fo中定义
+//很坑爹！！！！
+//不过有网友破解了貌似，参考连接https://github.com/Reggi3/210-nand-patch/blob/master/s5p_phy_init_ext.c
+//之所以开始ehci一直工作不正常一直提示错误hub 1-0:1.0: over-current condition on port 1，是因为没有调用这个函数
+//这个函数配置了USB HOST charge pump enable和USB HOST oevercurrent flag
+//最开始只是简单把s5p_phy_init_ext拷贝过来用发现运行出错提示虚拟地址映射出错！最终发现友善之臂提供的gpio虚拟地址基地址
+//为S3C_ADDR_BASE为0xFD000000，而我用的这个内核S3C_ADDR_BASE为0xF6000000，同时友善之臂gpio虚拟地址为S5P_VA_GPIO  S3C_ADDR(0x01500000)
+//而我用的内核gpio虚拟地址S5P_VA_GPIO  S3C_ADDR(0x02200000)，所以当然会出现虚拟地址映射出错了。。。。
+//友善之臂用的gpio虚拟地址映射是改过的，至于为什么要改还不清楚。。不知道还会不会右类似问题。
+static inline void s5p_ehci_phy_init(int cmd, struct usb_hcd *hcd)
+{
+
+	void __iomem *gpio_regs = (void __iomem *) 0xF8200000;//gpio虚拟地址起始地址为0xF8200000，就是S5P_VA_GPIO
+	u32 tmp;
+	tmp = readl(gpio_regs + 0x648);//ETC2PUD寄存器偏移为0x648
+	tmp |= (1 << (6 * 2)) | (1 << (7 * 2));//pull down
+	writel(tmp, gpio_regs + 0x648);
+	tmp = readl(gpio_regs + 0x64c);
+	tmp |= (1 << (6 * 2)) | (1 << (7 * 2));//3X
+	writel(tmp, gpio_regs + 0x64c);
+	
+	if (!hcd)
+		return;
+
+	if (!hcd->regs || ((unsigned int) hcd->regs == 0xFFFFFFBF))
+		return;
+
+	/* set AHB burst mode (INSNREG00) */
+	if (cmd == PHY_CMD_EHCI) /* INCR4/8/16 burst mode */
+		writel(0xF0000, hcd->regs + 0x90);
+	else                    /* INCR4/8 bust mode */
+		writel(0x70000, hcd->regs + 0x90);
+}
 
 static int __devinit s5p_ehci_probe(struct platform_device *pdev)
 {
@@ -125,6 +161,11 @@ static int __devinit s5p_ehci_probe(struct platform_device *pdev)
 	if (pdata->phy_init)
 		pdata->phy_init(pdev, S5P_USB_PHY_HOST);
 
+	//add by Nick.
+#if defined(CONFIG_MACH_TINY210)
+	s5p_ehci_phy_init(PHY_CMD_EHCI, hcd);           
+#endif
+
 	ehci = hcd_to_ehci(hcd);
 	ehci->caps = hcd->regs;
 	ehci->regs = hcd->regs +
@@ -136,6 +177,8 @@ static int __devinit s5p_ehci_probe(struct platform_device *pdev)
 	/* cache this readonly data; minimize chip reads */
 	ehci->hcs_params = readl(&ehci->caps->hcs_params);
 
+	//add by Nick
+	ehci_reset(ehci);
 	err = usb_add_hcd(hcd, irq, IRQF_DISABLED | IRQF_SHARED);
 	if (err) {
 		dev_err(&pdev->dev, "Failed to add USB HCD\n");
@@ -189,6 +232,110 @@ static void s5p_ehci_shutdown(struct platform_device *pdev)
 	if (hcd->driver->shutdown)
 		hcd->driver->shutdown(hcd);
 }
+
+//add by Nick
+#ifdef CONFIG_PM
+static int s5p_ehci_suspend(struct device *dev)
+{
+	struct s5p_ehci_hcd *s5p_ehci = dev_get_drvdata(dev);
+	struct usb_hcd *hcd = s5p_ehci->hcd;
+	struct ehci_hcd *ehci = hcd_to_ehci(hcd);
+	struct platform_device *pdev = to_platform_device(dev);
+	struct s5p_ehci_platdata *pdata = pdev->dev.platform_data;
+	unsigned long flags;
+	int rc = 0;
+
+	if (time_before(jiffies, ehci->next_statechange))
+		msleep(20);
+
+	/*
+	 * Root hub was already suspended. Disable irq emission and
+	 * mark HW unaccessible.  The PM and USB cores make sure that
+	 * the root hub is either suspended or stopped.
+	 */
+	ehci_prepare_ports_for_controller_suspend(ehci, device_may_wakeup(dev));
+	spin_lock_irqsave(&ehci->lock, flags);
+	ehci_writel(ehci, 0, &ehci->regs->intr_enable);
+	(void)ehci_readl(ehci, &ehci->regs->intr_enable);
+
+	clear_bit(HCD_FLAG_HW_ACCESSIBLE, &hcd->flags);
+	spin_unlock_irqrestore(&ehci->lock, flags);
+
+	if (pdata && pdata->phy_exit)
+		pdata->phy_exit(pdev, S5P_USB_PHY_HOST);
+
+	return rc;
+}
+
+static int s5p_ehci_resume(struct device *dev)
+{
+	struct s5p_ehci_hcd *s5p_ehci = dev_get_drvdata(dev);
+	struct usb_hcd *hcd = s5p_ehci->hcd;
+	struct ehci_hcd *ehci = hcd_to_ehci(hcd);
+	struct platform_device *pdev = to_platform_device(dev);
+	struct s5p_ehci_platdata *pdata = pdev->dev.platform_data;
+
+	if (pdata && pdata->phy_init)
+		pdata->phy_init(pdev, S5P_USB_PHY_HOST);
+
+#if defined(CONFIG_MACH_TINY210)
+	s5p_ehci_phy_init(PHY_CMD_EHCI, hcd);
+#endif
+
+	/* DMA burst Enable */
+#if defined(CONFIG_ARCH_S5PV310)
+	writel(0x03C00000, hcd->regs + 0x90);
+#endif
+
+	if (time_before(jiffies, ehci->next_statechange))
+		msleep(100);
+
+	/* Mark hardware accessible again as we are out of D3 state by now */
+	set_bit(HCD_FLAG_HW_ACCESSIBLE, &hcd->flags);
+
+	if (ehci_readl(ehci, &ehci->regs->configured_flag) == FLAG_CF) {
+		int	mask = INTR_MASK;
+
+		ehci_prepare_ports_for_controller_resume(ehci);
+		if (!hcd->self.root_hub->do_remote_wakeup)
+			mask &= ~STS_PCD;
+		ehci_writel(ehci, mask, &ehci->regs->intr_enable);
+		ehci_readl(ehci, &ehci->regs->intr_enable);
+		return 0;
+	}
+
+	usb_root_hub_lost_power(hcd->self.root_hub);
+
+	(void) ehci_halt(ehci);
+	(void) ehci_reset(ehci);
+
+	/* emptying the schedule aborts any urbs */
+	spin_lock_irq(&ehci->lock);
+	if (ehci->reclaim)
+		end_unlink_async(ehci);
+	ehci_work(ehci);
+	spin_unlock_irq(&ehci->lock);
+
+	ehci_writel(ehci, ehci->command, &ehci->regs->command);
+	ehci_writel(ehci, FLAG_CF, &ehci->regs->configured_flag);
+	ehci_readl(ehci, &ehci->regs->command);	/* unblock posted writes */
+
+	/* here we "know" root ports should always stay powered */
+	ehci_port_power(ehci, 1);
+
+	hcd->state = HC_STATE_SUSPENDED;
+
+	return 0;
+}
+#else
+#define s5p_ehci_suspend	NULL
+#define s5p_ehci_resume		NULL
+#endif
+
+static const struct dev_pm_ops s5p_ehci_pm_ops = {
+	.suspend	= s5p_ehci_suspend,
+	.resume		= s5p_ehci_resume,
+};
 
 static struct platform_driver s5p_ehci_driver = {
 	.probe		= s5p_ehci_probe,

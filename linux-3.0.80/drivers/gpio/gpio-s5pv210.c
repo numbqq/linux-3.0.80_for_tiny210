@@ -264,7 +264,7 @@ static struct s3c_gpio_chip s5pv210_gpio_4bit[] = {
 	},
 };
 
-static __init int s5pv210_gpiolib_init(void)
+ __init int s5pv210_gpiolib_init(void)
 {
 	struct s3c_gpio_chip *chip = s5pv210_gpio_4bit;
 	int nr_chips = ARRAY_SIZE(s5pv210_gpio_4bit);
@@ -285,4 +285,4 @@ static __init int s5pv210_gpiolib_init(void)
 
 	return 0;
 }
-core_initcall(s5pv210_gpiolib_init);
+//core_initcall(s5pv210_gpiolib_init);
