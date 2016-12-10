@@ -172,6 +172,7 @@ config MACH_TINY210
 	select SAMSUNG_DEV_PWM
 	select SAMSUNG_DEV_TS
 	select S5P_DEV_USB_EHCI			#add by Nick
+	select S5P_DEV_USB_OHCI			#add by Nick
 	select S5PV210_SETUP_FB_24BPP
 	select S5PV210_SETUP_I2C1
 	select S5PV210_SETUP_I2C2

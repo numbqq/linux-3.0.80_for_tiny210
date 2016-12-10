@@ -47,6 +47,7 @@
 #include <plat/fb.h>
 #include <plat/s5p-time.h>
 #include <plat/ehci.h>  /* add by Nick. */
+#include <plat/ohci.h>	/* add by Nick. */
 
 /* Following are default values for UCON, ULCON and UFCON UART registers */
 #define TINY210_UCON_DEFAULT	(S3C2410_UCON_TXILEVEL |	\
@@ -336,6 +337,7 @@ static struct platform_device *tiny210_devices[] __initdata = {
 	&tiny210_backlight_device,
 	&tiny210_device_led,	/*add by Nick.*/
 	&s5p_device_ehci,		/* add by Nick. */
+	&s5p_device_ohci,		/* add by Nick. */
 };
 
 static void __init tiny210_dm9000_init(void)
@@ -378,6 +380,7 @@ static void __init tiny210_map_io(void)
 {
 	s5p_init_io(NULL, 0, S5P_VA_CHIPID);
 	s3c24xx_init_clocks(24000000);
+	s5pv210_gpiolib_init();
 	s3c24xx_init_uarts(tiny210_uartcfgs, ARRAY_SIZE(tiny210_uartcfgs));
 	s5p_set_timer_source(S5P_PWM2, S5P_PWM4);
 }
@@ -392,12 +395,28 @@ static void __init tiny210_ehci_init(void)
 		    s5p_ehci_set_platdata(pdata);
 }
 
+/* add by Nick. */
+/* USB OHCI */
+static struct s5p_ohci_platdata tiny210_ohci_pdata;
+static void __init tiny210_ohci_init(void)                
+{
+	struct s5p_ohci_platdata *pdata = &tiny210_ohci_pdata;
+
+	s5p_ohci_set_platdata(pdata);
+}
+
 
 static void __init tiny210_machine_init(void)
 {
 	s3c_pm_init();
 
 	tiny210_dm9000_init();
+
+	//add by Nick
+	/* Disable USB PHY for soft reboot */
+	if (__raw_readl(S5P_RST_STAT) & (1 << 3)) {
+		__raw_writel(0, S5P_USB_PHY_CONTROL);
+	}
 
 	samsung_keypad_set_platdata(&tiny210_keypad_data);
 	s3c24xx_ts_set_platdata(&s3c_ts_platform);
@@ -418,6 +437,7 @@ static void __init tiny210_machine_init(void)
 
 	/* add by Nick. */
 	tiny210_ehci_init();
+	tiny210_ohci_init();
 
 	platform_add_devices(tiny210_devices, ARRAY_SIZE(tiny210_devices));
 }
