@@ -272,6 +272,18 @@ static struct s3c_fb_platdata tiny210_lcd0_pdata __initdata = {
 	.setup_gpio	= s5pv210_fb_gpio_setup_24bpp,
 };
 
+//add by Nick
+#ifdef CONFIG_TOUCHSCREEN_FT5X0X
+#include <plat/ft5x0x_touch.h>
+static struct ft5x0x_i2c_platform_data ft5x0x_pdata = {
+	.gpio_irq		= S5PV210_GPH1(6),
+	.irq_cfg		= S3C_GPIO_SFN(0xf),
+	.screen_max_x	= 800,
+	.screen_max_y	= 480,
+	.pressure_max	= 255,
+};
+#endif
+
 static int tiny210_backlight_init(struct device *dev)
 {
 	int ret;
@@ -367,7 +379,13 @@ static struct i2c_board_info tiny210_i2c_devs1[] __initdata = {
 };
 
 static struct i2c_board_info tiny210_i2c_devs2[] __initdata = {
-	/* To Be Updated */
+	//add by Nick
+#ifdef CONFIG_TOUCHSCREEN_FT5X0X	
+	{ 
+		I2C_BOARD_INFO("ft5x0x_ts", 0x38), 
+		.platform_data = &ft5x0x_pdata,	
+	},
+#endif
 };
 
 static struct s3c2410_ts_mach_info s3c_ts_platform __initdata = {
