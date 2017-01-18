@@ -54,7 +54,7 @@
  * using 2 wire for device control, so we cache them instead.
  */
 static const u16 wm8960_reg[WM8960_CACHEREGNUM] = {
-	0x0097, 0x0097, 0x0000, 0x0000,
+	0x0097, 0x0097, 0x0064, 0x0064,
 	0x0000, 0x0008, 0x0000, 0x000a,
 	0x01c0, 0x0000, 0x00ff, 0x00ff,
 	0x0000, 0x0000, 0x0000, 0x0000,
@@ -62,9 +62,9 @@ static const u16 wm8960_reg[WM8960_CACHEREGNUM] = {
 	0x0000, 0x00c3, 0x00c3, 0x01c0,
 	0x0000, 0x0000, 0x0000, 0x0000,
 	0x0000, 0x0000, 0x0000, 0x0000,
-	0x0100, 0x0100, 0x0050, 0x0050,
-	0x0050, 0x0050, 0x0000, 0x0000,
-	0x0000, 0x0000, 0x0040, 0x0000,
+	0x0100, 0x0100, 0x0150, 0x0050,
+	0x0050, 0x0150, 0x0000, 0x0000,
+	0x0064, 0x0064, 0x0040, 0x0000,
 	0x0000, 0x0050, 0x0050, 0x0000,
 	0x0002, 0x0037, 0x004d, 0x0080,
 	0x0008, 0x0031, 0x0026, 0x00e9,
@@ -966,14 +966,25 @@ static int wm8960_probe(struct snd_soc_codec *codec)
 	snd_soc_write(codec, WM8960_LDAC, reg | 0x100);
 	reg = snd_soc_read(codec, WM8960_RDAC);
 	snd_soc_write(codec, WM8960_RDAC, reg | 0x100);
-	reg = snd_soc_read(codec, WM8960_LOUT1);
+	reg = snd_soc_read(codec, WM8960_LOUT1);//overwrite default volume: 100,refer to wm8960_reg default value.
 	snd_soc_write(codec, WM8960_LOUT1, reg | 0x100);
-	reg = snd_soc_read(codec, WM8960_ROUT1);
+	reg = snd_soc_read(codec, WM8960_ROUT1);//overwrite default volume: 100,refer to wm8960_reg default value.
 	snd_soc_write(codec, WM8960_ROUT1, reg | 0x100);
-	reg = snd_soc_read(codec, WM8960_LOUT2);
+	reg = snd_soc_read(codec, WM8960_LOUT2);//overwrite default volume: 100,refer to wm8960_reg default value.
 	snd_soc_write(codec, WM8960_LOUT2, reg | 0x100);
-	reg = snd_soc_read(codec, WM8960_ROUT2);
+	reg = snd_soc_read(codec, WM8960_ROUT2);//overwrite default volume: 100,refer to wm8960_reg default value.
 	snd_soc_write(codec, WM8960_ROUT2, reg | 0x100);
+
+	/* overwrite chip default,enable path.
+	 * overwrite WM8960_LOUTMIX default value: 0x150 -> Left DAC to Left Output Mixer   : Enable Path  
+	 * overwrite WM8960_ROUTMIX default value: 0x150 -> Right DAC to Right Output Mixer : Enable Path
+	 */
+	reg = snd_soc_read(codec, WM8960_LOUTMIX);
+	snd_soc_write(codec, WM8960_LOUTMIX, reg);
+	reg = snd_soc_read(codec, WM8960_ROUTMIX);
+	snd_soc_write(codec, WM8960_ROUTMIX, reg);
+
+	
 
 	snd_soc_add_controls(codec, wm8960_snd_controls,
 				     ARRAY_SIZE(wm8960_snd_controls));
