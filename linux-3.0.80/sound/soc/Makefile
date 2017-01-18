@@ -1,6 +1,14 @@
 snd-soc-core-objs := soc-core.o soc-dapm.o soc-jack.o soc-cache.o soc-utils.o
 
 obj-$(CONFIG_SND_SOC)	+= snd-soc-core.o
+
+#ifneq ($(CONFIG_SND_S5PV2XX_SOC),)
+#obj-$(CONFIG_SND_SOC)   += s5pv2xx/
+#else
+#obj-$(CONFIG_SND_SOC)   += samsung/
+#endif
+
+
 obj-$(CONFIG_SND_SOC)	+= codecs/
 obj-$(CONFIG_SND_SOC)	+= atmel/
 obj-$(CONFIG_SND_SOC)	+= au1x/
@@ -15,7 +23,12 @@ obj-$(CONFIG_SND_SOC)	+= nuc900/
 obj-$(CONFIG_SND_SOC)	+= omap/
 obj-$(CONFIG_SND_SOC)	+= kirkwood/
 obj-$(CONFIG_SND_SOC)	+= pxa/
-obj-$(CONFIG_SND_SOC)	+= samsung/
+#modify by Nick
+ifneq ($(CONFIG_SND_S5PV2XX_SOC),)
+obj-$(CONFIG_SND_SOC)   += s5pv2xx/
+else
+obj-$(CONFIG_SND_SOC)   += samsung/
+endif
 obj-$(CONFIG_SND_SOC)	+= s6000/
 obj-$(CONFIG_SND_SOC)	+= sh/
 obj-$(CONFIG_SND_SOC)	+= tegra/

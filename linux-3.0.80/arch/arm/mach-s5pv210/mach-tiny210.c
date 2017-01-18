@@ -323,6 +323,12 @@ static struct platform_device tiny210_backlight_device = {
 	},
 };
 
+struct platform_device tiny210_wm8960_device = {
+	.name = "tiny210_wm8960",
+	.id = -1,
+};
+
+
 static struct platform_device *tiny210_devices[] __initdata = {
 	&s3c_device_adc,
 	&s3c_device_cfcon,
@@ -338,6 +344,7 @@ static struct platform_device *tiny210_devices[] __initdata = {
 	&s3c_device_rtc,
 	&s3c_device_ts,
 	&s3c_device_wdt,
+	&tiny210_wm8960_device,
 	&s5pv210_device_ac97,
 	&s5pv210_device_iis0,
 	&s5pv210_device_spdif,
@@ -369,9 +376,24 @@ static void __init tiny210_dm9000_init(void)
 	__raw_writel(tmp, S5P_SROM_BW);  
 }
 
+#ifdef CONFIG_SND_SOC_WM8960_TINY210
+#include <sound/wm8960.h>
+static struct wm8960_data wm8960_pdata = {
+	.capless		= 0,
+	.dres			= WM8960_DRES_400R,
+};
+#endif
+
+
 static struct i2c_board_info tiny210_i2c_devs0[] __initdata = {
 	{ I2C_BOARD_INFO("24c08", 0x50), },     /* Samsung S524AD0XD1 */
-	{ I2C_BOARD_INFO("wm8580", 0x1b), },
+//	{ I2C_BOARD_INFO("wm8580", 0x1b), },
+#ifdef CONFIG_SND_SOC_WM8960_TINY210
+	{ 
+		I2C_BOARD_INFO("wm8960", 0x1a),
+		.platform_data = &wm8960_pdata,
+	},
+#endif	
 };
 
 static struct i2c_board_info tiny210_i2c_devs1[] __initdata = {

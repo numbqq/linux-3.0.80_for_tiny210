@@ -30,6 +30,9 @@
 #include <plat/s5p-clock.h>
 #include <plat/clock-clksrc.h>
 #include <plat/s5pv210.h>
+#include <plat/devs.h>	/*add by Nick*/
+#include <mach/regs-audss.h> /*add by Nick*/
+
 
 static unsigned long xtal;
 
@@ -184,6 +187,12 @@ static int s5pv210_clk_mask1_ctrl(struct clk *clk, int enable)
 {
 	return s5p_gatectrl(S5P_CLK_SRC_MASK1, clk, enable);
 }
+/*add by Nick.*/
+static int s5pv210_clk_audss_ctrl(struct clk *clk, int enable)
+{
+	return s5p_gatectrl(S5P_CLKGATE_AUDSS, clk, enable);
+}
+
 
 static struct clk clk_sclk_hdmi27m = {
 	.name		= "sclk_hdmi27m",
@@ -473,6 +482,12 @@ static struct clk init_clocks_off[] = {
 		.enable		= s5pv210_clk_ip3_ctrl,
 		.ctrlbit	= (1<<21),
 	}, {
+		.name		= "i2s_v50",	/*add by Nick*/
+		.id		= 0,
+		.parent		= &clk_p,
+		.enable		= s5pv210_clk_ip3_ctrl,
+		.ctrlbit	= S5P_CLKGATE_IP3_I2S0,
+	}, {
 		.name		= "iis",
 		.id		= 0,
 		.parent		= &clk_p,
@@ -661,6 +676,61 @@ static struct clksrc_clk clk_sclk_audio0 = {
 	.reg_src = { .reg = S5P_CLK_SRC6, .shift = 0, .size = 4 },
 	.reg_div = { .reg = S5P_CLK_DIV6, .shift = 0, .size = 4 },
 };
+
+/* add by Nick. */
+static struct clk *clkset_mout_audss_list[] = {
+	&clk_ext_xtal_mux,
+	&clk_fout_epll,
+};
+
+static struct clksrc_sources clkset_mout_audss = {
+	.sources	= clkset_mout_audss_list,
+	.nr_sources	= ARRAY_SIZE(clkset_mout_audss_list),
+};
+
+static struct clksrc_clk clk_mout_audss = {
+	.clk		= {
+		.name		= "mout_audss",
+		.id		= -1,
+	},
+	.sources	= &clkset_mout_audss,
+	.reg_src	= { .reg = S5P_CLKSRC_AUDSS, .shift = 0, .size = 1 },
+};
+
+static struct clk *clkset_mout_i2s_a_list[] = {
+	&clk_mout_audss.clk,
+	&clk_pcmcdclk0,
+	&clk_sclk_audio0.clk,
+};
+
+static struct clksrc_sources clkset_mout_i2s_a = {
+	.sources	= clkset_mout_i2s_a_list,
+	.nr_sources	= ARRAY_SIZE(clkset_mout_i2s_a_list),
+};
+
+static struct clksrc_clk clk_mout_i2s_a = {
+	.clk		= {
+		.name		= "audio-bus",
+		.id		= 0,
+		.enable		= s5pv210_clk_audss_ctrl,
+		.ctrlbit	= (1 << 6),
+	},
+	.sources	= &clkset_mout_i2s_a,
+	.reg_src	= { .reg = S5P_CLKSRC_AUDSS, .shift = 2, .size = 2 },
+	.reg_div	= { .reg = S5P_CLKDIV_AUDSS, .shift = 4, .size = 4 },
+};
+
+static struct clksrc_clk clk_dout_audio_bus_clk_i2s = {
+	.clk		= {
+		.name		= "dout_audio_bus_clk_i2s",
+		.id		= -1,
+		.parent		= &clk_mout_audss.clk,
+		.enable		= s5pv210_clk_audss_ctrl,
+		.ctrlbit	= (1 << 5),
+	},
+	.reg_div	= { .reg = S5P_CLKDIV_AUDSS, .shift = 0, .size = 4 },
+};
+
 
 static struct clk *clkset_sclk_audio1_list[] = {
 	[0] = &clk_ext_xtal_mux,
@@ -1068,6 +1138,9 @@ static struct clksrc_clk *sysclks[] = {
 	&clk_sclk_audio1,
 	&clk_sclk_audio2,
 	&clk_sclk_spdif,
+	&clk_mout_audss,	/*add by Nick*/
+	&clk_mout_i2s_a,	/*add by Nick*/
+	&clk_dout_audio_bus_clk_i2s,	/*add by Nick*/
 };
 
 static u32 epll_div[][6] = {

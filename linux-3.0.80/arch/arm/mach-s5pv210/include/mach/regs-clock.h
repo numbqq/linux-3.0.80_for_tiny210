@@ -122,6 +122,132 @@
 
 #define S5P_ARM_MCS_CON		S5P_CLKREG(0x6100)
 
+/*add by Nick*/
+/* Special Clock Gate Registers */
+#define	S5P_CLKGATE_SCLK_FIMC_LCLK	(1<<5)
+
+/* IP Clock Gate 0 Registers */
+#define S5P_CLKGATE_IP0_CSIS		(1<<31)	
+#define S5P_CLKGATE_IP0_IPC		(1<<30)
+#define S5P_CLKGATE_IP0_ROTATOR		(1<<29)
+#define S5P_CLKGATE_IP0_JPEG		(1<<28)
+#define S5P_CLKGATE_IP0_FIMC2		(1<<26)
+#define S5P_CLKGATE_IP0_FIMC1		(1<<25)
+#define S5P_CLKGATE_IP0_FIMC0		(1<<24)
+#define S5P_CLKGATE_IP0_MFC		(1<<16)
+#define S5P_CLKGATE_IP0_G2D		(1<<12)
+#define S5P_CLKGATE_IP0_G3D		(1<<8)
+#define S5P_CLKGATE_IP0_IMEM		(1<<5)
+#define S5P_CLKGATE_IP0_PDMA1		(1<<4)
+#define S5P_CLKGATE_IP0_PDMA0		(1<<3)
+#define S5P_CLKGATE_IP0_MDMA		(1<<2)
+#define S5P_CLKGATE_IP0_DMC1		(1<<1)
+#define S5P_CLKGATE_IP0_DMC0		(1<<0)
+
+/* IP Clock Gate 1 Registers */
+#define S5P_CLKGATE_IP1_NFCON		(1<<28)	
+#define S5P_CLKGATE_IP1_SROMC		(1<<26)
+#define S5P_CLKGATE_IP1_CFCON		(1<<25)
+#define S5P_CLKGATE_IP1_NANDXL		(1<<24)
+#define S5P_CLKGATE_IP1_USBHOST		(1<<17)
+#define S5P_CLKGATE_IP1_USBOTG		(1<<16)
+#define S5P_CLKGATE_IP1_HDMI		(1<<11)
+#define S5P_CLKGATE_IP1_TVENC		(1<<10)
+#define S5P_CLKGATE_IP1_MIXER		(1<<9)
+#define S5P_CLKGATE_IP1_VP		(1<<8)
+#define S5P_CLKGATE_IP1_DSIM		(1<<2)
+#define S5P_CLKGATE_IP1_MIE		(1<<1)
+#define S5P_CLKGATE_IP1_FIMD		(1<<0)
+
+/* IP Clock Gate 2 Registers */
+#define S5P_CLKGATE_IP2_TZIC3		(1<<31)	
+#define S5P_CLKGATE_IP2_TZIC2		(1<<30)
+#define S5P_CLKGATE_IP2_TZIC1		(1<<29)
+#define S5P_CLKGATE_IP2_TZIC0		(1<<28)
+#define S5P_CLKGATE_IP2_VIC3		(1<<27)
+#define S5P_CLKGATE_IP2_VIC2		(1<<26)
+#define S5P_CLKGATE_IP2_VIC1		(1<<25)
+#define S5P_CLKGATE_IP2_VIC0		(1<<24)
+#define S5P_CLKGATE_IP2_TSI		(1<<20)
+#define S5P_CLKGATE_IP2_HSMMC3		(1<<19)
+#define S5P_CLKGATE_IP2_HSMMC2		(1<<18)
+#define S5P_CLKGATE_IP2_HSMMC1		(1<<17)
+#define S5P_CLKGATE_IP2_HSMMC0		(1<<16)
+#define S5P_CLKGATE_IP2_SECJTAG		(1<<11)
+#define S5P_CLKGATE_IP2_HOSTIF		(1<<10)
+#define S5P_CLKGATE_IP2_MODEM		(1<<9)
+#define S5P_CLKGATE_IP2_CORESIGHT	(1<<8)
+#define S5P_CLKGATE_IP2_SDM		(1<<1)
+#define S5P_CLKGATE_IP2_SECSS		(1<<0)
+
+/* IP Clock Gate 3 Registers */
+#define S5P_CLKGATE_IP3_PCM2		(1<<30)
+#define S5P_CLKGATE_IP3_PCM1		(1<<29)
+#define S5P_CLKGATE_IP3_PCM0		(1<<28)
+#define S5P_CLKGATE_IP3_SYSCON		(1<<27)
+#define S5P_CLKGATE_IP3_GPIO		(1<<26)
+#define S5P_CLKGATE_IP3_TSADC		(1<<24)
+#define S5P_CLKGATE_IP3_PWM		(1<<23)
+#define S5P_CLKGATE_IP3_WDT		(1<<22)
+#define S5P_CLKGATE_IP3_KEYIF		(1<<21)
+#define S5P_CLKGATE_IP3_UART3		(1<<20)
+#define S5P_CLKGATE_IP3_UART2		(1<<19)
+#define S5P_CLKGATE_IP3_UART1		(1<<18)
+#define S5P_CLKGATE_IP3_UART0		(1<<17)
+#define S5P_CLKGATE_IP3_SYSTIMER	(1<<16)
+#define S5P_CLKGATE_IP3_RTC		(1<<15)
+#define S5P_CLKGATE_IP3_SPI2		(1<<14)
+#define S5P_CLKGATE_IP3_SPI1		(1<<13)
+#define S5P_CLKGATE_IP3_SPI0		(1<<12)
+#define S5P_CLKGATE_IP3_I2C_HDMI_PHY	(1<<11)
+#define S5P_CLKGATE_IP3_I2C_HDMI_DDC	(1<<10)
+#define S5P_CLKGATE_IP3_I2C2		(1<<9)
+#define S5P_CLKGATE_IP3_I2C1		(1<<8)
+#define S5P_CLKGATE_IP3_I2C0		(1<<7)
+#define S5P_CLKGATE_IP3_I2S2		(1<<6)
+#define S5P_CLKGATE_IP3_I2S1		(1<<5)
+#define S5P_CLKGATE_IP3_I2S0		(1<<4)	
+#define S5P_CLKGATE_IP3_AC97		(1<<1)
+#define S5P_CLKGATE_IP3_SPDIF		(1<<0)
+
+/* IP Clock Gate 4 Registers */
+#define S5P_CLKGATE_IP4_TZPC3		(1<<8)
+#define S5P_CLKGATE_IP4_TZPC2		(1<<7)
+#define S5P_CLKGATE_IP4_TZPC1		(1<<6)
+#define S5P_CLKGATE_IP4_TZPC0		(1<<5)
+#define S5P_CLKGATE_IP4_SECKEY		(1<<3)
+#define S5P_CLKGATE_IP4_IEM_APC		(1<<2)
+#define S5P_CLKGATE_IP4_IEM_IEC		(1<<1)
+#define S5P_CLKGATE_IP4_CHIP_ID		(1<<0)
+
+/* Block Clock Gate Registers */
+#define S5P_CLKGATE_BLOCK_INTC		(1<<10)
+#define S5P_CLKGATE_BLOCK_HSMMC		(1<<9)
+#define S5P_CLKGATE_BLOCK_DEBUG		(1<<8)
+#define S5P_CLKGATE_BLOCK_SECURITY	(1<<7)
+#define S5P_CLKGATE_BLOCK_MEMORY	(1<<6)
+#define S5P_CLKGATE_BLOCK_USB		(1<<5)
+#define S5P_CLKGATE_BLOCK_TV		(1<<4)
+#define S5P_CLKGATE_BLOCK_LCD		(1<<3)
+#define S5P_CLKGATE_BLOCK_IMG		(1<<2)
+#define S5P_CLKGATE_BLOCK_MFC		(1<<1)
+#define S5P_CLKGATE_BLOCK_G3D		(1<<0)
+
+/* IP Clock Gate 5 Registers */
+#define S5P_CLKGATE_IP5_JPEG		(1<<29)
+
+
+
+/* Clk Div Stat0 Registers*/
+#define S5P_CLK_DIV_STAT0_DIV_FIMC2_LCLK	(1<<22)
+#define S5P_CLK_DIV_STAT0_DIV_FIMC1_LCLK	(1<<21)
+#define S5P_CLK_DIV_STAT0_DIV_FIMC0_LCLK	(1<<20)
+#define S5P_CLK_DIV_STAT0_DIV_CSIS	(1<<15)
+#define S5P_CLK_DIV_STAT0_DIV_CAM1	(1<<12)
+#define S5P_CLK_DIV_STAT0_DIV_CAM0	(1<<11)
+#define S5P_CLK_DIV_STAT0_DIV_FIMC	(1<<10)
+
+
 /* Registers related to power management */
 #define S5P_PWR_CFG		S5P_CLKREG(0xC000)
 #define S5P_EINT_WAKEUP_MASK	S5P_CLKREG(0xC004)
