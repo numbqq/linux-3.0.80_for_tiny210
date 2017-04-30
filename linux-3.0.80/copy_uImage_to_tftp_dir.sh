@@ -2,4 +2,4 @@
 
 
 
-cp ./arch/arm/boot/uImage /tftpboot
+cp ./arch/arm/boot/uImage /home/nick/tftp_root
